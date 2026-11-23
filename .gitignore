@@ -1,0 +1,18 @@
+# 密钥（Comtrade API key 等）不入库
+config.ini
+.env
+.streamlit/secrets.toml
+
+# 运行时产物
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.log
+~$*.xlsx
+~$*.docx
+
+# 系统文件
+.DS_Store
+desktop.ini
+Thumbs.db
