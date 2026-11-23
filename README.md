@@ -34,7 +34,7 @@
 
 ## 二、实测输出
 
-`python scoring.py --detail` 的真实输出（数据见 `data/country_metrics.csv`）：
+`python scoring.py --detail` 的真实输出（数据见 `country_metrics.csv`）：
 
 | 排名 | 国家 | 基础分（百分制） | 风险扣分 | 总分 |
 |:--:|:--|--:|--:|--:|
@@ -68,15 +68,15 @@ C9 物流适配度        5 分 × 3%  = 0.150   2 天（五国最快之一）
 
 ## 三、界面
 
-![界面总览](docs/images/ui-overview.png)
+![界面总览](ui-overview.png)
 
 九项指标的得分、权重、加权分与打分依据逐项列出，任何一个分数都能倒退回原始数据：
 
-![九指标明细](docs/images/ui-metrics.png)
+![九指标明细](ui-metrics.png)
 
 第 1 名直接给出渠道、客户画像与选择理由；2–5 名折叠展示：
 
-![渠道建议](docs/images/ui-channels.png)
+![渠道建议](ui-channels.png)
 
 ---
 
@@ -123,25 +123,31 @@ C9 物流适配度        5 分 × 3%  = 0.150   2 天（五国最快之一）
 ## 五、目录结构
 
 ```
-food-export-market-screening/
-├── app.py                  # Streamlit 界面（输入 → 结果卡片）
-├── scoring.py              # 评分引擎：三层漏斗的主体
-├── build_db.py             # CSV → SQLite 一键建库（纯标准库）
-├── db.py                   # 表结构定义（weights / channels / country_metrics）
-├── import_excel.py         # Excel → SQLite（组内 Excel 协作流程用）
-├── fetch_data.py           # UN Comtrade 官方 API 抓取（原始 JSON 存档 + 汇总 CSV）
-├── data/
-│   ├── country_metrics.csv                # 五国 × 九指标数值（核心数据表）
-│   ├── weights.csv                        # 九维权重与打分规则
-│   ├── channels.csv                       # 五国渠道与客户画像
-│   ├── comtrade_summary.csv               # 五国三年进口额汇总
-│   └── raw/                               # 原始 API 返回样例（带抓取时间戳）
-└── docs/
-    ├── 01-评分模型说明.md      # 九维定义、打分档位、风险规则
-    ├── 02-数据来源与口径.md    # 每个数字从哪来、区间怎么取、合规依据
-    ├── 03-项目推进与分工.md    # 里程碑、任务拆分、踩坑与回归清单
-    └── images/                # 界面截图
+food-voyage/
+├── README.md                 # 本文件
+├── app.py                    # Streamlit 界面（输入 → 结果卡片）
+├── scoring.py                # 评分引擎：三层漏斗主体
+├── build_db.py               # CSV → SQLite 一键建库（纯标准库）
+├── db.py                     # 表结构定义
+├── import_excel.py           # Excel → SQLite（组内协作流程）
+├── fetch_data.py             # UN Comtrade 官方 API 抓取
+├── requirements.txt          # 依赖
+├── country_metrics.csv       # 五国 × 九指标数值（核心数据表）
+├── weights.csv               # 九维权重与打分规则
+├── channels.csv              # 五国渠道与客户画像
+├── 01-评分模型说明.md         # 九维定义、打分档位、风险规则
+├── 02-数据来源与口径.md       # 每个数字的来源、区间取法、合规依据
+├── 03-项目推进与分工.md       # 里程碑、任务拆分、踩坑与回归清单
+├── ui-overview.png           # 界面截图：总览
+├── ui-metrics.png            # 界面截图：九指标明细
+├── ui-channels.png           # 界面截图：渠道建议
+├── Germany_0712_2024_*.json  # 5 份原始 API 返回样例（带抓取时间戳）
+└── .gitignore
 ```
+
+> 小项目采用平铺结构，代码、数据、文档、截图都在同一层，点开即看。
+> 数据以 CSV 形式入库而不是 Excel：CSV 能 diff、能直接在仓库里审阅，
+> 也避免二进制文件在版本管理里变成「黑盒」。团队内部的 Excel 源文件仍在本地维护。
 
 > 数据以 CSV 形式入库而不是 Excel：CSV 能 diff、能直接在这里审阅，
 > 也避免二进制文件在版本管理里变成"黑盒"。团队内部的 Excel 源文件仍在本地维护。
@@ -153,7 +159,7 @@ food-export-market-screening/
 ```bash
 pip install -r requirements.txt
 
-python build_db.py           # 从 data/*.csv 建库（几秒，纯标准库）
+python build_db.py           # 从根目录 *.csv 建库（几秒，纯标准库）
 python scoring.py            # 五国排名
 python scoring.py --detail   # 每个国家九项各得几分、依据是什么
 streamlit run app.py         # 打开网页界面（数据库缺失时会自动构建）
@@ -162,7 +168,7 @@ streamlit run app.py         # 打开网页界面（数据库缺失时会自动�
 抓取最新贸易数据（需在 [UN Comtrade](https://comtradeapi.un.org) 申请免费 key，写入 `config.ini` 或环境变量 `COMTRADE_KEY`）：
 
 ```bash
-python fetch_data.py     # 原始 JSON 存 data/raw/，汇总存 data/comtrade_summary.csv
+python fetch_data.py     # 原始 JSON 存入 data/raw/，汇总存 comtrade_summary.csv
 ```
 
 ---
@@ -177,7 +183,7 @@ python fetch_data.py     # 原始 JSON 存 data/raw/，汇总存 data/comtrade_s
 | 渠道结构 | 各国零售/批发集中度公开资料 | 用于 C5 档位判定 |
 
 - 越南 2024 年未上报，采用 2023 年数据并在数据表中标注年份 —— **不插值、不推测**。
-- 仓库 `data/raw/` 内保留每国 1 份原始 API 返回作为样例；完整 70 份（2022–2024 × 5 国 × 全球/中国两种口径）留存在本地存档目录，可按需提供。
+- 仓库根目录保留每国 1 份原始 API 返回作为样例；完整 70 份（2022–2024 × 5 国 × 全球/中国两种口径）留存在本地存档目录，可按需提供。
 
 ---
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-build_db.py —— 从 data/*.csv 构建 market.db（纯标准库，不需要 pandas）
+build_db.py —— 从 *.csv 构建 market.db（纯标准库，不需要 pandas）
 
 运行方法：
     python build_db.py
@@ -11,9 +11,9 @@ build_db.py —— 从 data/*.csv 构建 market.db（纯标准库，不需要 pa
     这个脚本负责把 CSV 装回 SQLite。schema 仍然复用 db.py，不另起一套。
 
 对应关系：
-    data/country_metrics.csv → 表 country_metrics（五国 × 九指标）
-    data/weights.csv         → 表 weights（九维权重与打分规则）
-    data/channels.csv        → 表 channels（五国渠道与客户画像）
+    country_metrics.csv → 表 country_metrics（五国 × 九指标）
+    weights.csv               → 表 weights（九维权重与打分规则）
+    channels.csv              → 表 channels（五国渠道与客户画像）
 """
 
 import csv
@@ -23,7 +23,17 @@ import sqlite3
 import db
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(HERE, "data")
+
+
+def _find_data_dir():
+    # CSV 可能在根目录（网页上传拍平）或 data/ 子目录，两种结构都兼容
+    for cand in (HERE, os.path.join(HERE, "data")):
+        if os.path.exists(os.path.join(cand, "country_metrics.csv")):
+            return cand
+    return os.path.join(HERE, "data")
+
+
+DATA_DIR = _find_data_dir()
 
 # 表名 → 字段顺序（必须与 db.py 的建表语句一致）
 TABLES = {
